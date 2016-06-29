@@ -1,0 +1,19 @@
+body {
+  text-align: center;
+}
+
+.page {
+  width: 350px;
+  height: 250px;
+  border: 1px solid #000;
+  margin: 0 auto;
+  display: none;
+}
+
+.page.active {
+  display: block;
+}
+.page.selected {
+  background: blue;
+  color: #fff;
+}
