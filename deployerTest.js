@@ -80,9 +80,7 @@ function button() {
 
 function post(data) {
   var req = http.request(data, function(res) {
-      res.on('data', function (chunk) {
-          // console.log('Response: ' + chunk);
-      });
+      res.on('data', function (chunk) { });
   });
 
   req.write('');
