@@ -2,11 +2,13 @@
 var http = require('http');
 var leap = require('leapjs');
 
-var buildTimeout = 60 * 1000;
+var inputLocked = false;
+var inputLockTime = 500;
 var buildInProgress = false;
-var apiUrl = 'http://localhost:3000/api'
+var buildTimeout = 60 * 1000;
+var apiBase = '/api/inputs';
 var postParams = {
-  host: 'localhost',
+  host: '192.168.21.92',
   port: 3000,
   method: 'POST'
 }
@@ -21,20 +23,12 @@ function setupLeap() {
   });
 
   controller.on('deviceFrame', function(frame) {
-    var nrOfFingers = frame.fingers.filter(function(finger, index, fingers) {
-                                          return finger.extended;
-                                        }).length;
-
-      if (nrOfFingers === 10 && !buildInProgress) {
-        buildInProgress = true;
-        button();
-
-        setTimeout(function() {
-          buildInProgress = false;
-          console.log('build done');
-        }, buildTimeout);
-      }
-
+    var nrOfFingers = frame.fingers.filter(function(finger, index, fingers) {return finger.extended;).length;
+    if (nrOfFingers === 10 && !buildInProgress) {
+      buildInProgress = true;
+      button();
+      buildLock();
+    }
   });
 
   controller.connect();
@@ -50,34 +44,36 @@ function calculateSwipe(gesture) {
     } else {
         (gesture.direction[1] > 0) ? up() : down();
     }
+
+    inputLock();
 }
 
 function up() {
-  postParams.path = '/api/up';
+  postParams.path = apiBase + '/up';
   post(postParams);
   console.log('up');
 }
 
 function down() {
-  postParams.path = '/api/down';
+  postParams.path = apiBase + '/down';
   post(postParams);
   console.log('down');
 }
 
 function left() {
-  postParams.path = '/api/left';
+  postParams.path = apiBase + '/left';
   post(postParams);
   console.log('left');
 }
 
 function right() {
-  postParams.path = '/api/right';
+  postParams.path = apiBase + '/right';
   post(postParams);
   console.log('right');
 }
 
 function button() {
-  postParams.path = '/api/button';
+  postParams.path = apiBase + '/button';
   post(postParams);
   console.log('button');
 }
@@ -91,6 +87,21 @@ function post(data) {
 
   req.write('');
   req.end();
+}
+
+function buildLock() {
+  buildInProgress = true;
+  setTimeout(function() {
+    buildInProgress = false;
+    console.log('build done');
+  }, buildTimeout);
+}
+
+function inputLock() {
+  inputLocked = true;
+  setTimeout(function() {
+    inputLocked = false;
+  }, inputLockTime);
 }
 
 setupLeap();
