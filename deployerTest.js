@@ -2,13 +2,14 @@
 var http = require('http');
 var leap = require('leapjs');
 
+var nrOfFingersToDeploy = 5;
 var inputLocked = false;
 var inputLockTime = 500;
 var buildInProgress = false;
 var buildTimeout = 60 * 1000;
 var apiBase = '/api/inputs';
 var postParams = {
-  host: '192.168.21.92',
+  host: 'localhost', //'192.168.21.92',
   port: 3000,
   method: 'POST'
 }
@@ -23,8 +24,8 @@ function setupLeap() {
   });
 
   controller.on('deviceFrame', function(frame) {
-    var nrOfFingers = frame.fingers.filter(function(finger, index, fingers) {return finger.extended;).length;
-    if (nrOfFingers === 10 && !buildInProgress) {
+    var nrOfFingers = frame.fingers.filter(function(finger, index, fingers) {return finger.extended}).length;
+    if (nrOfFingers === nrOfFingersToDeploy && !buildInProgress) {
       buildInProgress = true;
       button();
       buildLock();
@@ -48,26 +49,27 @@ function calculateSwipe(gesture) {
     inputLock();
 }
 
+// Inverted swipe direction
 function up() {
-  postParams.path = apiBase + '/up';
+  postParams.path = apiBase + '/down';
   post(postParams);
   console.log('up');
 }
 
 function down() {
-  postParams.path = apiBase + '/down';
+  postParams.path = apiBase + '/up';
   post(postParams);
   console.log('down');
 }
 
 function left() {
-  postParams.path = apiBase + '/left';
+  postParams.path = apiBase + '/right';
   post(postParams);
   console.log('left');
 }
 
 function right() {
-  postParams.path = apiBase + '/right';
+  postParams.path = apiBase + '/left';
   post(postParams);
   console.log('right');
 }
