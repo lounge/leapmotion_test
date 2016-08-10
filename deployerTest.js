@@ -2,7 +2,7 @@
 var http = require('http');
 var leap = require('leapjs');
 
-var nrOfFingersToDeploy = 5;
+var fingersToDeploy = 5;
 var inputLocked = false;
 var inputLockTime = 500;
 var buildInProgress = false;
@@ -24,8 +24,8 @@ function setupLeap() {
   });
 
   controller.on('deviceFrame', function(frame) {
-    var nrOfFingers = frame.fingers.filter(function(finger, index, fingers) {return finger.extended}).length;
-    if (nrOfFingers === nrOfFingersToDeploy && !buildInProgress) {
+    var numFingers = frame.fingers.filter(function(finger, index, fingers) {return finger.extended}).length;
+    if (numFingers === fingersToDeploy && !buildInProgress) {
       buildInProgress = true;
       button();
       buildLock();
